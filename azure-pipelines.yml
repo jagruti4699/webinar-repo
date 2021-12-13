@@ -8,9 +8,15 @@ trigger:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'webinar-acr-connection'
-  imageRepository: 'webinar-web-app'
-  containerRegistry: 'webinaracr.azurecr.io'
+  dockerRegistryServiceConnection: 'dockerhub-sc'
+  #imageRepository: 'webinar-web-app'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerhub-sc'
+    repository: '46990406/trial'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+  containerRegistry: 'dockerhub-sc'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
   # Agent VM image name
@@ -60,16 +66,10 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: Docker@2
-      displayName: Build and push the image to the Azure Container Registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags: |
-          $(tag)
-          latest
+- task: Docker@2
+
+ 
+     
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(System.DefaultWorkingDirectory)/deployment/'
